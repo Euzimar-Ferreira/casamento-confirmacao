@@ -2,49 +2,55 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
   <title>Confirmação de Presença</title>
 
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
   <style>
     body {
-      background: #111;
-      color: #eee;
-      font-family: 'Poppins', sans-serif;
+      background: #f5f5f5;
+      color: #222;
+      font-family: "Poppins", sans-serif;
     }
+
     .card {
-      background: #1b1b1b;
-      border: 1px solid #333;
-      border-radius: 20px;
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 18px;
     }
+
     .input {
-      background: #222 !important;
-      border: 1px solid #444 !important;
-      color: #eee !important;
+      background: #fff !important;
+      border: 1px solid #ccc !important;
+      color: #111 !important;
       border-radius: 10px;
-      font-size: 16px !important; /* evita zoom no mobile */
     }
+
     .input:focus {
-      border-color: #888 !important;
+      border-color: #666 !important;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.15);
     }
+
+    select, textarea, input {
+      -webkit-appearance: none; /* FIX iPhone */
+      appearance: none;
+    }
+
     .btn-primary {
-      background: white;
-      color: black;
+      background: #000;
+      color: white;
       border-radius: 12px;
       font-weight: 600;
       transition: 0.3s;
-      font-size: 16px !important; /* evita zoom no mobile */
     }
     .btn-primary:hover {
-      background: #e5e5e5;
+      background: #333;
     }
+
     .fade {
-      animation: fadeIn .6s ease;
+      animation: fadeIn 0.5s ease;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -52,20 +58,17 @@
     }
 
     .modal-back {
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(3px);
-      animation: fadeBg .3s ease forwards;
-    }
-
-    @keyframes fadeBg {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(2px);
     }
 
     .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #ccc;
+      animation: popup 0.25s ease forwards;
       transform: scale(0.85);
       opacity: 0;
-      animation: popup .25s ease forwards;
     }
 
     @keyframes popup {
@@ -78,8 +81,8 @@
     .spinner {
       width: 65px;
       height: 65px;
-      border: 5px solid #444;
-      border-top-color: #fff;
+      border: 5px solid #ddd;
+      border-top-color: #000;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -88,25 +91,18 @@
       to { transform: rotate(360deg); }
     }
 
-    /* ==================== FIX PARA BUG DO SELECT NO ANDROID ==================== */
-    #guestSelect {
-      -webkit-appearance: none;
+    /* Forçar estilo checkbox no iPhone */
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #333;
+      border-radius: 6px;
       appearance: none;
-      background-color: #222 !important;
-      color: #eee !important;
-      border: 1px solid #444 !important;
-      font-size: 16px !important;
     }
 
-    @media (max-width: 768px) {
-      #guestSelect {
-        font-size: 16px !important;
-      }
-
-      .modal-back {
-        backdrop-filter: none !important; /* corrige bug de blur em android */
-        background: rgba(0,0,0,0.85) !important;
-      }
+    input[type="checkbox"]:checked {
+      background: #000;
+      border-color: #000;
     }
   </style>
 </head>
@@ -115,26 +111,28 @@
   <div class="min-h-screen flex items-center justify-center p-6">
     <div class="card w-full max-w-2xl p-8 fade">
 
-      <h1 class="text-3xl font-bold text-center mb-6 text-white">
+      <h1 class="text-3xl font-bold text-center mb-6">
         Confirmação de Presença
       </h1>
 
       <!-- Selecionar convidado -->
       <div class="mb-6">
-        <label class="block mb-2 text-gray-300">Seu nome</label>
-        <select id="guestSelect" class="input w-full p-3"></select>
+        <label class="block mb-2 text-gray-600">Seu nome</label>
+        <select id="guestSelect" class="input w-full p-3">
+          <option value="">Carregando...</option>
+        </select>
       </div>
 
       <!-- Dependentes -->
       <div id="depsContainer" class="hidden mb-6 fade">
-        <label class="block mb-2 text-gray-300">Acompanhantes</label>
-        <div id="depsList" class="space-y-2"></div>
+        <label class="block mb-2 text-gray-600">Acompanhantes</label>
+        <div id="depsList" class="space-y-3"></div>
       </div>
 
       <!-- Mensagem -->
       <div class="mb-6 fade">
-        <label class="block mb-2 text-gray-300">Mensagem (opcional)</label>
-        <textarea id="mensagem" class="input w-full p-3" rows="3" placeholder="Deixe uma mensagem especial..."></textarea>
+        <label class="block mb-2 text-gray-600">Mensagem (opcional)</label>
+        <textarea id="mensagem" class="input w-full p-3" rows="3"></textarea>
       </div>
 
       <!-- Botão -->
@@ -146,13 +144,12 @@
     </div>
   </div>
 
-
   <!-- MODAL -->
   <div id="messageModal" class="fixed inset-0 hidden items-center justify-center z-50 modal-back">
-    <div class="modal-box bg-[#1e1e1e] p-6 rounded-2xl shadow-xl w-80 text-center border border-gray-700">
+    <div class="modal-box p-6 w-80 text-center">
       <h2 id="modalTitle" class="text-xl font-bold mb-3"></h2>
-      <p id="modalMessage" class="text-gray-300 mb-4"></p>
-      <button onclick="closeModal()" class="px-5 py-2 bg-white text-black rounded-lg font-semibold">
+      <p id="modalMessage" class="text-gray-600 mb-4"></p>
+      <button onclick="closeModal()" class="px-5 py-2 bg-black text-white rounded-lg font-semibold">
         OK
       </button>
     </div>
@@ -160,128 +157,99 @@
 
   <!-- LOADING -->
   <div id="loadingModal" class="fixed inset-0 hidden items-center justify-center z-50 modal-back">
-    <div class="modal-box flex flex-col items-center gap-4 p-6 bg-[#1e1e1e] rounded-2xl shadow-xl border border-gray-700">
+    <div class="modal-box flex flex-col items-center gap-4 p-6 w-80">
       <div class="spinner"></div>
-      <p class="text-white text-lg font-semibold">Carregando...</p>
+      <p class="text-black text-lg font-semibold">Carregando...</p>
     </div>
   </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbz4G0dk0X2KQOqnZ_KtURaGuFstLEBeyambX15lvdhZqCE6okDoLeM-XSRkAvvZ7mTQ/exec";
 
-    function showModal(title, message) {
-      document.getElementById("modalTitle").innerText = title;
-      document.getElementById("modalMessage").innerText = message;
-      document.getElementById("messageModal").classList.remove("hidden");
+    function showModal(title, msg) {
+      modalTitle.textContent = title;
+      modalMessage.textContent = msg;
+      messageModal.classList.remove("hidden");
     }
 
     function closeModal() {
-      document.getElementById("messageModal").classList.add("hidden");
+      messageModal.classList.add("hidden");
     }
 
     function showLoading() {
-      document.getElementById("loadingModal").classList.remove("hidden");
+      loadingModal.classList.remove("hidden");
     }
-
     function hideLoading() {
-      document.getElementById("loadingModal").classList.add("hidden");
+      loadingModal.classList.add("hidden");
     }
 
-    /* ========= CARREGAR CONVIDADOS ========= */
+    /* CARREGAR CONVIDADOS */
     async function loadGuests() {
       showLoading();
-
       try {
-        const res = await fetch(`${API_URL}?action=getGuests`);
+        const res = await fetch(API_URL + "?action=getGuests");
         const data = await res.json();
 
-        const select = document.querySelector('#guestSelect');
-        select.innerHTML = '<option value="">Selecione seu nome...</option>';
+        guestSelect.innerHTML = `<option value="">Selecione seu nome...</option>`;
 
         data.guests.forEach(g => {
-          const op = document.createElement('option');
+          const op = document.createElement("option");
           op.value = g.nome;
           op.textContent = g.nome;
           op.dataset.deps = JSON.stringify(g.dependentes);
-          select.appendChild(op);
+          guestSelect.appendChild(op);
         });
 
-      } catch (err) {
-        showModal("Erro", "Falha ao carregar convidados.");
+      } catch {
+        showModal("Erro", "Não foi possível carregar os convidados.");
       }
-
       hideLoading();
     }
 
-    /* ========= FIX ANDROID → FORÇA REPAINT NO SELECT ========= */
-    const guestSelect = document.getElementById("guestSelect");
-    guestSelect.addEventListener("change", () => {
-      guestSelect.style.opacity = "0.99";
-      setTimeout(() => guestSelect.style.opacity = "1", 50);
-    });
-
-    /* ========= AO SELECIONAR CONVIDADO ========= */
-    document.querySelector('#guestSelect').addEventListener('change', (e) => {
+    /* QUANDO SELECIONA O CONVIDADO */
+    guestSelect.addEventListener("change", e => {
       const deps = JSON.parse(e.target.selectedOptions[0].dataset.deps || "[]");
-      const container = document.querySelector('#depsContainer');
-      const list = document.querySelector('#depsList');
-
-      list.innerHTML = "";
+      depsList.innerHTML = "";
 
       if (deps.length === 0) {
-        container.classList.add('hidden');
+        depsContainer.classList.add("hidden");
         return;
       }
 
-      container.classList.remove('hidden');
+      depsContainer.classList.remove("hidden");
 
       deps.forEach(dep => {
         const id = "dep_" + dep.replace(/\s+/g, "_");
 
-        const label = document.createElement("label");
-        label.className = "flex items-center gap-3";
-
-        const input = document.createElement("input");
-        input.type = "checkbox";
-        input.id = id;
-        input.value = dep;
-        input.className = "accent-white w-5 h-5";
-
-        const span = document.createElement("span");
-        span.textContent = dep;
-
-        label.appendChild(input);
-        label.appendChild(span);
-
-        list.appendChild(label);
+        depsList.innerHTML += `
+          <label class="flex items-center gap-3">
+            <input type="checkbox" id="${id}" value="${dep}">
+            <span>${dep}</span>
+          </label>
+        `;
       });
     });
 
-    /* ========= CONFIRMAR ========= */
-    document.querySelector('#btnConfirm').addEventListener('click', async () => {
-      const nome = document.querySelector('#guestSelect').value;
-      const mensagem = document.querySelector('#mensagem').value;
-      const deps = [...document.querySelectorAll('#depsList input:checked')].map(i => i.value);
+    /* CONFIRMAR */
+    btnConfirm.addEventListener("click", async () => {
+      const nome = guestSelect.value;
+      const mensagem = mensagem.value;
+      const deps = [...document.querySelectorAll("#depsList input:checked")].map(i => i.value);
 
-      if (!nome) {
-        showModal("Atenção", "Selecione seu nome.");
-        return;
-      }
-
-      const payload = {
-        action: "submitConfirmation",
-        nome,
-        dependentes: deps,
-        mensagem,
-        ua: navigator.userAgent
-      };
+      if (!nome) return showModal("Atenção", "Selecione seu nome.");
 
       showLoading();
 
       try {
         const res = await fetch(API_URL, {
           method: "POST",
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            action: "submitConfirmation",
+            nome,
+            dependentes: deps,
+            mensagem,
+            ua: navigator.userAgent
+          })
         });
 
         const data = await res.json();
@@ -289,9 +257,9 @@
 
         showModal(data.success ? "Sucesso" : "Erro", data.message);
 
-      } catch (err) {
+      } catch {
         hideLoading();
-        showModal("Erro", "Não foi possível enviar sua confirmação.");
+        showModal("Erro", "Falha ao enviar confirmação.");
       }
     });
 
