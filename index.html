@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Confirmação de Presença</title>
 
-  <!-- Tailwind -->
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     body {
       background: #0d0d0d;
       color: #eee;
-      font-family: "Poppins", sans-serif;
+      font-family: 'Poppins', sans-serif;
     }
 
     .card {
@@ -27,18 +26,12 @@
       border: 1px solid #333 !important;
       color: #eee !important;
       border-radius: 10px;
+      font-size: 16px !important;
     }
 
     .input:focus {
       border-color: #888 !important;
       box-shadow: 0 0 0 2px rgba(0, 255, 0, 0.25);
-    }
-
-    select,
-    textarea,
-    input {
-      -webkit-appearance: none;
-      appearance: none;
     }
 
     .btn-primary {
@@ -47,10 +40,51 @@
       border-radius: 12px;
       font-weight: 700;
       transition: 0.3s;
+      font-size: 16px !important;
     }
 
     .btn-primary:hover {
       background: #00e15d;
+    }
+
+    .fade {
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-back {
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-box {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 18px;
+      animation: popup 0.25s ease forwards;
+      transform: scale(0.85);
+      opacity: 0;
+    }
+
+    @keyframes popup {
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .spinner {
+      width: 65px;
+      height: 65px;
+      border: 5px solid #333;
+      border-top-color: #00c851;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     /* Checkbox customizado */
@@ -71,7 +105,6 @@
       border-color: #00c851;
     }
 
-    /* Ícone de check ✔ */
     input[type="checkbox"]:checked::after {
       content: "✔";
       position: absolute;
@@ -82,56 +115,9 @@
       font-weight: bold;
     }
 
-    .fade {
-      animation: fadeIn 0.5s ease;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .modal-back {
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(3px);
-    }
-
-    .modal-box {
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 18px;
-      animation: popup 0.25s ease forwards;
-      transform: scale(0.85);
-      opacity: 0;
-    }
-
-    @keyframes popup {
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    .spinner {
-      width: 65px;
-      height: 65px;
-      border: 5px solid #333;
-      border-top-color: #00c851;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
+    select, textarea, input {
+      -webkit-appearance: none;
+      appearance: none;
     }
   </style>
 </head>
@@ -147,9 +133,7 @@
       <!-- Selecionar convidado -->
       <div class="mb-6">
         <label class="block mb-2 text-gray-300">Seu nome</label>
-        <select id="guestSelect" class="input w-full p-3">
-          <option value="">Carregando...</option>
-        </select>
+        <select id="guestSelect" class="input w-full p-3"></select>
       </div>
 
       <!-- Dependentes -->
@@ -161,7 +145,7 @@
       <!-- Mensagem -->
       <div class="mb-6 fade">
         <label class="block mb-2 text-gray-300">Mensagem (opcional)</label>
-        <textarea id="mensagem" class="input w-full p-3" rows="3"></textarea>
+        <textarea id="mensagem" class="input w-full p-3" rows="3" placeholder="Deixe uma mensagem especial..."></textarea>
       </div>
 
       <!-- Botão -->
@@ -174,13 +158,11 @@
   </div>
 
   <!-- MODAL -->
-  <div id="messageModal"
-    class="fixed inset-0 hidden items-center justify-center z-50 modal-back text-center p-4">
-    <div class="modal-box p-6 w-80">
+  <div id="messageModal" class="fixed inset-0 hidden items-center justify-center z-50 modal-back">
+    <div class="modal-box p-6 w-80 text-center">
       <h2 id="modalTitle" class="text-xl font-bold text-white mb-3"></h2>
       <p id="modalMessage" class="text-gray-300 mb-4"></p>
-      <button onclick="closeModal()"
-        class="px-5 py-2 bg-[#00c851] text-black rounded-lg font-semibold">
+      <button onclick="closeModal()" class="px-5 py-2 bg-[#00c851] text-black rounded-lg font-semibold">
         OK
       </button>
     </div>
@@ -195,80 +177,97 @@
   </div>
 
   <script>
-    const API_URL =
-      "https://script.google.com/macros/s/AKfycbz4G0dk0X2KQOqnZ_KtURaGuFstLEBeyambX15lvdhZqCE6okDoLeM-XSRkAvvZ7mTQ/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbz4G0dk0X2KQOqnZ_KtURaGuFstLEBeyambX15lvdhZqCE6okDoLeM-XSRkAvvZ7mTQ/exec";
 
-    function showModal(title, msg) {
-      modalTitle.textContent = title;
-      modalMessage.textContent = msg;
-      messageModal.classList.remove("hidden");
+    function showModal(title, message) {
+      document.getElementById("modalTitle").innerText = title;
+      document.getElementById("modalMessage").innerText = message;
+      document.getElementById("messageModal").classList.remove("hidden");
     }
 
     function closeModal() {
-      messageModal.classList.add("hidden");
+      document.getElementById("messageModal").classList.add("hidden");
     }
 
     function showLoading() {
-      loadingModal.classList.remove("hidden");
-    }
-    function hideLoading() {
-      loadingModal.classList.add("hidden");
+      document.getElementById("loadingModal").classList.remove("hidden");
     }
 
-    /* CARREGAR CONVIDADOS */
+    function hideLoading() {
+      document.getElementById("loadingModal").classList.add("hidden");
+    }
+
+    /* ========= CARREGAR CONVIDADOS ========= */
     async function loadGuests() {
       showLoading();
+
       try {
-        const res = await fetch(API_URL + "?action=getGuests");
+        const res = await fetch(`${API_URL}?action=getGuests`);
         const data = await res.json();
 
-        guestSelect.innerHTML = `<option value="">Selecione seu nome...</option>`;
+        const select = document.querySelector('#guestSelect');
+        select.innerHTML = '<option value="">Selecione seu nome...</option>';
 
         data.guests.forEach(g => {
-          const op = document.createElement("option");
+          const op = document.createElement('option');
           op.value = g.nome;
           op.textContent = g.nome;
           op.dataset.deps = JSON.stringify(g.dependentes);
-          guestSelect.appendChild(op);
+          select.appendChild(op);
         });
 
       } catch {
         showModal("Erro", "Não foi possível carregar os convidados.");
       }
+
       hideLoading();
     }
 
-    /* QUANDO SELECIONA O CONVIDADO */
-    guestSelect.addEventListener("change", e => {
+    /* ========= AO SELECIONAR CONVIDADO ========= */
+    document.querySelector('#guestSelect').addEventListener('change', (e) => {
       const deps = JSON.parse(e.target.selectedOptions[0].dataset.deps || "[]");
-      depsList.innerHTML = "";
+      const container = document.querySelector('#depsContainer');
+      const list = document.querySelector('#depsList');
+
+      list.innerHTML = "";
 
       if (deps.length === 0) {
-        depsContainer.classList.add("hidden");
+        container.classList.add('hidden');
         return;
       }
 
-      depsContainer.classList.remove("hidden");
+      container.classList.remove('hidden');
 
       deps.forEach(dep => {
         const id = "dep_" + dep.replace(/\s+/g, "_");
+        const label = document.createElement("label");
+        label.className = "flex items-center gap-3 cursor-pointer";
 
-        depsList.innerHTML += `
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" id="${id}" value="${dep}">
-            <span class="text-gray-200">${dep}</span>
-          </label>
-        `;
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.id = id;
+        input.value = dep;
+
+        const span = document.createElement("span");
+        span.textContent = dep;
+        span.className = "text-gray-200";
+
+        label.appendChild(input);
+        label.appendChild(span);
+        list.appendChild(label);
       });
     });
 
-    /* CONFIRMAR */
-    btnConfirm.addEventListener("click", async () => {
-      const nome = guestSelect.value;
-      const mensagem = mensagem.value;
-      const deps = [...document.querySelectorAll("#depsList input:checked")].map(i => i.value);
+    /* ========= CONFIRMAR ========= */
+    document.querySelector('#btnConfirm').addEventListener('click', async () => {
+      const nome = document.querySelector('#guestSelect').value;
+      const mensagem = document.querySelector('#mensagem').value;
+      const deps = [...document.querySelectorAll('#depsList input:checked')].map(i => i.value);
 
-      if (!nome) return showModal("Atenção", "Selecione seu nome.");
+      if (!nome) {
+        showModal("Atenção", "Selecione seu nome.");
+        return;
+      }
 
       showLoading();
 
@@ -297,7 +296,5 @@
 
     loadGuests();
   </script>
-
 </body>
-
 </html>
