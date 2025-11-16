@@ -49,10 +49,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ===================== */
-    /* MODAIS MODERNOS      */
-    /* ===================== */
-
     .modal-back {
       background: rgba(0,0,0,0.75);
       backdrop-filter: blur(3px);
@@ -77,7 +73,6 @@
       }
     }
 
-    /* Loading Spinner personalizado */
     .spinner {
       width: 65px;
       height: 65px;
@@ -129,9 +124,7 @@
   </div>
 
 
-  <!-- ============================ -->
-  <!-- MODAL DE MENSAGEM (ANIMAÇÕES SUAVES + ESCURO) -->
-  <!-- ============================ -->
+  <!-- MODAL -->
   <div id="messageModal" class="fixed inset-0 hidden items-center justify-center z-50 modal-back">
     <div class="modal-box bg-[#1e1e1e] p-6 rounded-2xl shadow-xl w-80 text-center border border-gray-700">
       <h2 id="modalTitle" class="text-xl font-bold mb-3"></h2>
@@ -142,10 +135,7 @@
     </div>
   </div>
 
-
-  <!-- ============================ -->
-  <!-- MODAL DE CARREGAMENTO (CENTRAL + SUAVE) -->
-  <!-- ============================ -->
+  <!-- LOADING -->
   <div id="loadingModal" class="fixed inset-0 hidden items-center justify-center z-50 modal-back">
     <div class="modal-box flex flex-col items-center gap-4 p-6 bg-[#1e1e1e] rounded-2xl shadow-xl border border-gray-700">
       <div class="spinner"></div>
@@ -153,29 +143,17 @@
     </div>
   </div>
 
-
-
-
-  <!-- ============================ -->
-  <!-- JAVASCRIPT -->
-  <!-- ============================ -->
-
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbz4G0dk0X2KQOqnZ_KtURaGuFstLEBeyambX15lvdhZqCE6okDoLeM-XSRkAvvZ7mTQ/exec";
-
-    /* ========= MODAIS ========= */
 
     function showModal(title, message) {
       document.getElementById("modalTitle").innerText = title;
       document.getElementById("modalMessage").innerText = message;
-
-      const modal = document.getElementById("messageModal");
-      modal.classList.remove("hidden");
+      document.getElementById("messageModal").classList.remove("hidden");
     }
 
     function closeModal() {
-      const modal = document.getElementById("messageModal");
-      modal.classList.add("hidden");
+      document.getElementById("messageModal").classList.add("hidden");
     }
 
     function showLoading() {
@@ -186,9 +164,7 @@
       document.getElementById("loadingModal").classList.add("hidden");
     }
 
-
     /* ========= CARREGAR CONVIDADOS ========= */
-
     async function loadGuests() {
       showLoading();
 
@@ -214,9 +190,7 @@
       hideLoading();
     }
 
-
     /* ========= AO SELECIONAR CONVIDADO ========= */
-
     document.querySelector('#guestSelect').addEventListener('change', (e) => {
       const deps = JSON.parse(e.target.selectedOptions[0].dataset.deps || "[]");
       const container = document.querySelector('#depsContainer');
@@ -232,18 +206,29 @@
       container.classList.remove('hidden');
 
       deps.forEach(dep => {
-        list.innerHTML += `
-          <label class="flex items-center gap-3">
-            <input type="checkbox" value="${dep}" class="accent-white w-5 h-5" checked />
-            <span>${dep}</span>
-          </label>
-        `;
+        const id = "dep_" + dep.replace(/\s+/g, "_");
+
+        const label = document.createElement("label");
+        label.className = "flex items-center gap-3";
+
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.id = id;
+        input.value = dep;
+        input.checked = true;
+        input.className = "accent-white w-5 h-5";
+
+        const span = document.createElement("span");
+        span.textContent = dep;
+
+        label.appendChild(input);
+        label.appendChild(span);
+
+        list.appendChild(label);
       });
     });
 
-
-    /* ========= CONFIRMAR PRESENÇA ========= */
-
+    /* ========= CONFIRMAR ========= */
     document.querySelector('#btnConfirm').addEventListener('click', async () => {
       const nome = document.querySelector('#guestSelect').value;
       const mensagem = document.querySelector('#mensagem').value;
