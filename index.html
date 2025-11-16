@@ -27,6 +27,7 @@
       border: 1px solid #444 !important;
       color: #eee !important;
       border-radius: 10px;
+      font-size: 16px !important; /* evita zoom no mobile */
     }
     .input:focus {
       border-color: #888 !important;
@@ -37,6 +38,7 @@
       border-radius: 12px;
       font-weight: 600;
       transition: 0.3s;
+      font-size: 16px !important; /* evita zoom no mobile */
     }
     .btn-primary:hover {
       background: #e5e5e5;
@@ -84,6 +86,27 @@
 
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+
+    /* ==================== FIX PARA BUG DO SELECT NO ANDROID ==================== */
+    #guestSelect {
+      -webkit-appearance: none;
+      appearance: none;
+      background-color: #222 !important;
+      color: #eee !important;
+      border: 1px solid #444 !important;
+      font-size: 16px !important;
+    }
+
+    @media (max-width: 768px) {
+      #guestSelect {
+        font-size: 16px !important;
+      }
+
+      .modal-back {
+        backdrop-filter: none !important; /* corrige bug de blur em android */
+        background: rgba(0,0,0,0.85) !important;
+      }
     }
   </style>
 </head>
@@ -189,6 +212,13 @@
 
       hideLoading();
     }
+
+    /* ========= FIX ANDROID → FORÇA REPAINT NO SELECT ========= */
+    const guestSelect = document.getElementById("guestSelect");
+    guestSelect.addEventListener("change", () => {
+      guestSelect.style.opacity = "0.99";
+      setTimeout(() => guestSelect.style.opacity = "1", 50);
+    });
 
     /* ========= AO SELECIONAR CONVIDADO ========= */
     document.querySelector('#guestSelect').addEventListener('change', (e) => {
